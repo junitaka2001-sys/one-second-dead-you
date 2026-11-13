@@ -133,19 +133,24 @@ function calculateBMI(heightCm, weightKg) {
   return (weightKg / (heightM * heightM)).toFixed(1);
 }
 // ----- UI Navigation -----
-const screens = {
-  title: document.getElementById('title-screen'),
-  character: document.getElementById('character-screen'),
-  situation: document.getElementById('situation-screen'),
-  fate: document.getElementById('fate-screen'),
-  result: document.getElementById('result-screen')
-};
+let screens = {};
 function showScreen(name) {
-  Object.values(screens).forEach(s => s.classList.remove('active'));
-  screens[name].classList.add('active');
+  Object.values(screens).forEach(s => {
+    if (s) s.classList.remove('active');
+  });
+  if (screens[name]) {
+    screens[name].classList.add('active');
+  }
 }
 // ----- Init -----
 function init() {
+  screens = {
+    title: document.getElementById('title-screen'),
+    character: document.getElementById('character-screen'),
+    situation: document.getElementById('situation-screen'),
+    fate: document.getElementById('fate-screen'),
+    result: document.getElementById('result-screen')
+  };
   // Populate occupation select
   const occSelect = document.getElementById('occupation');
   occupations.forEach(o => {
@@ -278,34 +283,21 @@ function filterCandidates(input) {
   // Treat "ランダム" as wildcard for occupation and situation
   const occ = input.occupation;
   const sit = input.situation;
-  return events.filter(ev => {
+  const filtered = events.filter(ev => {
     // Occupation filter: if event defines occupations, they must include selected occupation unless random selected
     if (ev.occupations && ev.occupations.length > 0) {
-      if (occ === "ランダム") return true;
+      if (occ === "ランダム" || occ === "random") return true;
       if (!ev.occupations.includes(occ)) return false;
     }
     // Situation filter: if event defines situations, they must include selected situation unless random selected
     if (ev.situations && ev.situations.length > 0) {
-      if (sit === "ランダム") return true;
+      if (sit === "ランダム" || sit === "random") return true;
       if (!ev.situations.includes(sit)) return false;
     }
     return true;
   });
-}
-  return events.filter(ev => {
-    // Occupation filter: if event.occupations non-empty, must include selected occupation (or random matches all)
-    if (ev.occupations && ev.occupations.length > 0 && ev.occupations[0] !== "random") {
-      if (input.occupation === "random") return true;
-      if (!ev.occupations.includes(input.occupation)) return false;
-    }
-    // Situation filter similar
-    if (ev.situations && ev.situations.length > 0) {
-      if (input.situation === "ランダム") return true;
-      if (!ev.situations.includes(input.situation)) return false;
-    }
-    // Event can be universally applicable (empty arrays) -> keep
-    return true;
-  });
+  // Fallback if no matching events
+  return filtered.length > 0 ? filtered : events;
 }
 
 function computeWeight(event, input) {
@@ -396,4 +388,8 @@ function renderHistory() {
 }
 
 // ----- Start -----
-window.addEventListener('load', init);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
