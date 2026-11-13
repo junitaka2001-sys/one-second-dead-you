@@ -1,123 +1,798 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1秒後に死ぬ君</title>
-    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121019;
+            --box-bg: #1e192b;
+            --border-color: #ffcc00;
+            --text-color: #f0f0f5;
+            --accent-red: #ff3366;
+            --accent-blue: #00ddff;
+            --accent-green: #33ff99;
+            --font-pixel: 'DotGothic16', monospace, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-pixel);
+            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+            background-image: 
+                radial-gradient(circle at 50% 50%, #201a35 0%, #100b1d 100%);
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--box-bg);
+            border: 4px solid var(--border-color);
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.3), inset 0 0 10px rgba(0,0,0,0.8);
+            border-radius: 8px;
+            padding: 24px;
+            position: relative;
+            image-rendering: pixelated;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Titles & Headers */
+        h1 {
+            color: var(--accent-red);
+            font-size: 28px;
+            text-align: center;
+            text-shadow: 2px 2px 0px #000, 0 0 10px rgba(255, 51, 102, 0.6);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            color: var(--accent-blue);
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 2px dashed var(--accent-blue);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .pixel-btn {
+            font-family: var(--font-pixel);
+            font-size: 18px;
+            padding: 12px 20px;
+            background: #2b2342;
+            color: #fff;
+            border: 3px solid #ffcc00;
+            box-shadow: 3px 3px 0px #000;
+            cursor: pointer;
+            transition: all 0.1s;
+            text-align: center;
+            user-select: none;
+            text-decoration: none;
+        }
+
+        .pixel-btn:hover {
+            background: #ffcc00;
+            color: #1a1a1a;
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        .pixel-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000;
+        }
+
+        .pixel-btn.secondary {
+            border-color: #888;
+            background: #1b1626;
+            font-size: 14px;
+            padding: 8px 14px;
+        }
+
+        .pixel-btn.danger {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        .pixel-btn.danger:hover {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        .small-btn {
+            font-family: var(--font-pixel);
+            font-size: 13px;
+            padding: 4px 8px;
+            background: #3a3252;
+            color: #ffcc00;
+            border: 2px solid #ffcc00;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .small-btn:hover {
+            background: #ffcc00;
+            color: #000;
+        }
+
+        /* Form elements */
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .form-row label {
+            font-size: 14px;
+            color: #ffd966;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 8px;
+        }
+
+        input[type="text"], input[type="number"], select {
+            font-family: var(--font-pixel);
+            font-size: 15px;
+            padding: 8px;
+            background: #100b1a;
+            color: #fff;
+            border: 2px solid #554477;
+            border-radius: 4px;
+            width: 100%;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 6px;
+            background: #191325;
+            border: 2px solid #554477;
+            color: #aaa;
+            cursor: pointer;
+            font-family: var(--font-pixel);
+            font-size: 13px;
+        }
+
+        .tab-btn.active {
+            background: #392b52;
+            border-color: var(--accent-blue);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Pixel Avatar Box */
+        .pixel-avatar-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 16px 0;
+            background: #0b0714;
+            padding: 14px;
+            border: 2px solid #3d3059;
+            border-radius: 6px;
+        }
+
+        canvas#charCanvas {
+            image-rendering: pixelated;
+            background: #181126;
+            border: 2px solid #554477;
+            margin-bottom: 8px;
+        }
+
+        /* Animation Screen */
+        .anim-box {
+            text-align: center;
+            padding: 30px 10px;
+        }
+
+        .countdown {
+            font-size: 64px;
+            color: var(--accent-red);
+            font-weight: bold;
+            animation: pulse 1s infinite;
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(255, 51, 102, 0.8);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .fate-status {
+            font-size: 18px;
+            color: #ffcc00;
+            margin-top: 10px;
+        }
+
+        /* Result Screen */
+        .result-banner {
+            text-align: center;
+            padding: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .result-banner.death {
+            background: #590d22;
+            border: 3px solid var(--accent-red);
+            color: #ff4d6d;
+        }
+
+        .result-banner.survive {
+            background: #0f4c3a;
+            border: 3px solid var(--accent-green);
+            color: #52b788;
+        }
+
+        .result-details {
+            background: #0c0817;
+            border: 2px solid #3c2f56;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .result-tag {
+            display: inline-block;
+            background: #312347;
+            color: var(--accent-blue);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 6px;
+            margin-top: 6px;
+            border: 1px solid #553e77;
+        }
+
+        .history-box {
+            margin-top: 14px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #3d3059;
+            background: #0b0714;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .history-item {
+            padding: 4px 0;
+            border-bottom: 1px dashed #28203c;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Title Screen -->
-        <section id="title-screen" class="screen active">
-            <h1>1秒後に死ぬ君</h1>
-            <button id="start-btn" class="btn">はじめる</button>
-        </section>
 
-        <!-- Character Settings -->
-        <section id="character-screen" class="screen">
-            <h2>キャラクター設定</h2>
-            <form id="character-form">
-                <label>名前: <input type="text" id="name" placeholder="名前を入力" /></label>
-                <button type="button" id="random-name" class="small-btn">ランダム生成</button>
-                <br/>
-                <label>性別:
-                    <select id="gender">
-                        <option value="random">ランダム</option>
-                        <option value="男性">男性</option>
-                        <option value="女性">女性</option>
-                    </select>
-                </label>
-                <br/>
-                <label>年齢:
-                    <input type="number" id="age" min="0" max="100" placeholder="0〜100" />
-                </label>
-                <button type="button" id="random-age" class="small-btn">ランダム生成</button>
-                <br/>
-                <label>体格モード:
-                    <select id="body-mode">
-                        <option value="simple">簡易設定</option>
-                        <option value="detail">詳細設定</option>
-                    </select>
-                </label>
-                <div id="body-simple" class="body-section">
-                    <label>体格:
-                        <select id="body-type">
-                            <option value="random">ランダム</option>
-                            <option value="痩せ型">痩せ型</option>
-                            <option value="標準">標準</option>
-                            <option value="がっちり">がっちり</option>
-                            <option value="太め">太め</option>
-                        </select>
-                    </label>
-                </div>
-                <div id="body-detail" class="body-section hidden">
-                    <label>身長(cm): <input type="number" id="height" min="100" max="250" /></label>
-                    <label>体重(kg): <input type="number" id="weight" min="30" max="200" /></label>
-                    <p id="bmi-display"></p>
-                </div>
-                <br/>
-                <label>性格:
-                    <select id="personality">
-                        <option value="random">ランダム</option>
-                        <option value="慎重">慎重</option>
-                        <option value="大胆">大胆</option>
-                        <option value="のんびり">のんびり</option>
-                        <option value="せっかち">せっかち</option>
-                        <option value="臆病">臆病</option>
-                        <option value="好奇心旺盛">好奇心旺盛</option>
-                    </select>
-                </label>
-                <br/>
-                <label>職業:
-                    <select id="occupation">
-                        <option value="random">ランダム</option>
-                        <!-- options will be filled by script -->
-                    </select>
-                </label>
-                <br/>
-                <label>健康状態:
-                    <select id="health">
-                        <option value="random">ランダム</option>
-                        <option value="健康">健康</option>
-                        <option value="疲労気味">疲労気味</option>
-                        <option value="持病あり">持病あり</option>
-                        <option value="不健康">不健康</option>
-                    </select>
-                </label>
-                <br/>
-                <button type="button" id="to-situation" class="btn">次へ</button>
-            </form>
-        </section>
+<div id="game-container">
+    <!-- 1. タイトル画面 -->
+    <section id="screen-title" class="screen active">
+        <h1>1秒後に死ぬ君</h1>
+        <div class="pixel-avatar-box">
+            <canvas id="titleCanvas" width="96" height="96"></canvas>
+            <p style="color: #aaa; font-size: 14px; margin-top: 6px;">〜 あなたの運命を1秒後に抽選 〜</p>
+        </div>
+        <p style="font-size: 14px; text-align: center; color: #ccc; line-height: 1.8;">
+            キャラクターとシチュエーションを設定すると、<br>
+            その人物に訪れる「1秒後の劇的な結末」を判定します。
+        </p>
+        <div class="btn-group">
+            <button type="button" class="pixel-btn" onclick="goToScreen('screen-char')">▶ はじめる</button>
+        </div>
+    </section>
 
-        <!-- Situation Settings -->
-        <section id="situation-screen" class="screen">
-            <h2>シチュエーション設定</h2>
-            <select id="situation">
-                <!-- options filled by script -->
-            </select>
-            <br/>
-            <button id="to-fate" class="btn">運命判定へ</button>
-        </section>
+    <!-- 2. キャラクター設定画面 -->
+    <section id="screen-char" class="screen">
+        <h2>キャラクター設定</h2>
+        
+        <div class="form-row">
+            <label>名前 <button type="button" class="small-btn" onclick="genRandomName()">ランダム</button></label>
+            <input type="text" id="char-name" value="たかし" maxlength="15" placeholder="名前を入力">
+        </div>
 
-        <!-- Fate Animation -->
-        <section id="fate-screen" class="screen">
-            <h2>1秒後のあなたは……</h2>
-            <div id="animation">
-                <canvas id="char-canvas" width="200" height="200"></canvas>
+        <div style="display: flex; gap: 10px;">
+            <div class="form-row" style="flex: 1;">
+                <label>性別</label>
+                <select id="char-gender">
+                    <option value="男性">男性</option>
+                    <option value="女性">女性</option>
+                    <option value="ランダム">ランダム</option>
+                </select>
             </div>
-            <button id="reveal-btn" class="btn">結果を見る</button>
-        </section>
+            <div class="form-row" style="flex: 1;">
+                <label>年齢 <button type="button" class="small-btn" onclick="genRandomAge()">🎲</button></label>
+                <input type="number" id="char-age" value="28" min="0" max="100">
+            </div>
+        </div>
 
-        <!-- Result Screen -->
-        <section id="result-screen" class="screen">
-            <h2>結果</h2>
-            <div id="result-content"></div>
-            <button id="again-btn" class="btn">もう一度遊ぶ</button>
-            <h3>履歴</h3>
-            <ul id="history-list"></ul>
-        </section>
-    </div>
-    <script src="script.js"></script>
+        <!-- 体格設定 -->
+        <div class="form-row">
+            <label>体格</label>
+            <div class="toggle-group">
+                <button type="button" id="tab-simple" class="tab-btn active" onclick="setBodyMode('simple')">簡易設定</button>
+                <button type="button" id="tab-detail" class="tab-btn" onclick="setBodyMode('detail')">詳細設定 (BMI)</button>
+            </div>
+            <div id="body-simple-area">
+                <select id="char-body-type">
+                    <option value="標準">標準</option>
+                    <option value="痩せ型">痩せ型</option>
+                    <option value="がっちり">がっちり</option>
+                    <option value="太め">太め</option>
+                    <option value="ランダム">ランダム</option>
+                </select>
+            </div>
+            <div id="body-detail-area" style="display: none; background: #130d21; padding: 8px; border-radius: 4px;">
+                <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+                    <input type="number" id="char-height" value="170" placeholder="身長(cm)" oninput="calcBMI()">
+                    <input type="number" id="char-weight" value="65" placeholder="体重(kg)" oninput="calcBMI()">
+                </div>
+                <div id="bmi-display" style="font-size: 13px; color: var(--accent-blue);">BMI: 22.5 (普通体重)</div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>性格</label>
+            <select id="char-personality">
+                <option value="慎重">慎重</option>
+                <option value="大胆">大胆</option>
+                <option value="のんびり">のんびり</option>
+                <option value="せっかち">せっかち</option>
+                <option value="臆病">臆病</option>
+                <option value="好奇心旺盛">好奇心旺盛</option>
+                <option value="ランダム">ランダム</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>職業</label>
+            <select id="char-job">
+                <option value="会社員・公務員">会社員・公務員</option>
+                <option value="医療・福祉職">医療・福祉職</option>
+                <option value="教育職">教育職</option>
+                <option value="運転・配送職">運転・配送職</option>
+                <option value="建設・工場・現場職">建設・工場・現場職</option>
+                <option value="飲食・接客業">飲食・接客業</option>
+                <option value="IT・技術職">IT・技術職</option>
+                <option value="自営業・経営者">自営業・経営者</option>
+                <option value="警察・消防・自衛官">警察・消防・自衛官</option>
+                <option value="スポーツ・芸能・クリエイター">スポーツ・芸能・クリエイター</option>
+                <option value="学生">学生</option>
+                <option value="無職・その他">無職・その他</option>
+                <option value="ランダム">ランダム</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>健康状態</label>
+            <select id="char-health">
+                <option value="健康">健康</option>
+                <option value="疲労気味">疲労気味</option>
+                <option value="持病あり">持病あり</option>
+                <option value="不健康">不健康</option>
+                <option value="ランダム">ランダム</option>
+            </select>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="pixel-btn secondary" onclick="goToScreen('screen-title')">戻る</button>
+            <button type="button" class="pixel-btn" onclick="goToScreen('screen-sit')">次へ（状況選択）▶</button>
+        </div>
+    </section>
+
+    <!-- 3. シチュエーション設定画面 -->
+    <section id="screen-sit" class="screen">
+        <h2>シチュエーション設定</h2>
+        <p style="font-size: 14px; color: #bbb; text-align: center;">
+            現在、キャラクターはどこで何をしていますか？
+        </p>
+
+        <div class="form-row" style="margin-top: 16px;">
+            <label>現在の状況</label>
+            <select id="char-sit" style="font-size: 16px; padding: 10px;">
+                <option value="自宅でくつろいでいる">自宅でくつろいでいる</option>
+                <option value="睡眠中">睡眠中</option>
+                <option value="通勤・通学中">通勤・通学中</option>
+                <option value="電車・バスで移動中">電車・バスで移動中</option>
+                <option value="自動車で移動中">自動車で移動中</option>
+                <option value="徒歩で移動中">徒歩で移動中</option>
+                <option value="自転車で移動中">自転車で移動中</option>
+                <option value="勤務中">勤務中</option>
+                <option value="高所作業中">高所作業中</option>
+                <option value="食事中">食事中</option>
+                <option value="入浴中">入浴中</option>
+                <option value="運動中">運動中</option>
+                <option value="スポーツ中">スポーツ中</option>
+                <option value="買い物中">買い物中</option>
+                <option value="屋外で遊んでいる">屋外で遊んでいる</option>
+                <option value="旅行中">旅行中</option>
+                <option value="ランダム">ランダム</option>
+            </select>
+        </div>
+
+        <div class="pixel-avatar-box">
+            <canvas id="charCanvas" width="96" height="96"></canvas>
+            <div id="preview-summary" style="font-size: 13px; color: #ffcc00; text-align: center;"></div>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="pixel-btn secondary" onclick="goToScreen('screen-char')">戻る</button>
+            <button type="button" class="pixel-btn danger" onclick="startFateCountdown()">⚡ 運命判定へ</button>
+        </div>
+    </section>
+
+    <!-- 4. 運命判定カウントダウン演出画面 -->
+    <section id="screen-fate" class="screen">
+        <h2>運命の審判</h2>
+        <div class="anim-box">
+            <p style="font-size: 18px; color: #ffcc00;">1秒後の運命まで……</p>
+            <div id="countdown-num" class="countdown">1</div>
+            <p id="fate-thinking" class="fate-status">未来を計算中……</p>
+        </div>
+    </section>
+
+    <!-- 5. 結果画面 -->
+    <section id="screen-result" class="screen">
+        <div id="result-banner" class="result-banner death">
+            〇〇により死亡……！
+        </div>
+
+        <div class="result-details">
+            <div style="font-size: 14px; color: #888; margin-bottom: 6px;">対象: <span id="res-target" style="color: #fff; font-weight: bold;"></span></div>
+            <div style="font-size: 18px; color: #ffcc00; margin-bottom: 10px; font-weight: bold;" id="res-event-name"></div>
+            <p id="res-story" style="font-size: 15px; margin-bottom: 12px;"></p>
+            <div style="font-size: 12px; color: #aaa; margin-bottom: 6px;" id="res-reason"></div>
+            <div id="res-tags"></div>
+        </div>
+
+        <div class="btn-group" style="margin-top: 16px;">
+            <button type="button" class="pixel-btn" onclick="retryGame()">🔄 もう一度遊ぶ</button>
+        </div>
+
+        <div style="margin-top: 18px;">
+            <div style="font-size: 13px; color: #888; margin-bottom: 4px;">📜 これまでの記録</div>
+            <div id="history-box" class="history-box"></div>
+        </div>
+    </section>
+</div>
+
+<script>
+/* ========================================================
+   ゲームデータ & 定数定義
+   ======================================================== */
+const NAMES = ['サトシ', 'ケンジ', 'ユウキ', 'ハルカ', 'アスカ', 'タクヤ', 'レイコ', 'タカシ', 'ショウタ', 'ミサキ'];
+
+// 50種類以上の豊富なイベント群（現実系・職業系・ネタ系・生存系）
+const EVENTS = [
+    // 1. 交通事故
+    { id: 1, name: "自動車同士の正面衝突", cat: "交通事故", tag: "現実系", jobs: ["運転・配送職"], sits: ["自動車で移動中", "通勤・通学中"], weight: 12, res: "death", story: "{{name}}は{{sit}}、対向車線をはみ出した大型トラックと激突してしまった……！" },
+    { id: 2, name: "歩行中の交差点事故", cat: "交通事故", tag: "現実系", jobs: [], sits: ["徒歩で移動中", "通勤・通学中", "買い物中"], weight: 10, res: "death", story: "{{name}}が{{sit}}、信号無視の暴走車両が突っ込んできた……！" },
+    { id: 3, name: "自転車の急なブレーキ転倒", cat: "交通事故", tag: "現実系", jobs: [], sits: ["自転車で移動中", "通勤・通学中"], weight: 8, res: "death", story: "{{name}}は{{sit}}、飛び出してきた猫を避けようとして頭から転落した……！" },
+    { id: 4, name: "超高速追突事故", cat: "交通事故", tag: "現実系", jobs: ["運転・配送職"], sits: ["自動車で移動中"], weight: 9, res: "death", story: "{{name}}の乗る車に、居眠り運転のスポーツカーがノーブレーキで追突した……！" },
+    { id: 5, name: "満員電車の急ブレーキ衝撃", cat: "交通事故", tag: "ネタ系", jobs: [], sits: ["電車・バスで移動中", "通勤・通学中"], weight: 6, res: "death", story: "{{name}}は{{sit}}、急制動の遠心力で窓を突き破り異世界へ飛ばされた……！" },
+    
+    // 2. 病気・急病
+    { id: 6, name: "突然の急性心筋梗塞", cat: "病気による死亡", tag: "現実系", jobs: [], sits: ["入浴中", "睡眠中", "勤務中", "運動中"], weight: 12, res: "death", story: "{{name}}は{{sit}}、突然胸に激痛が走り、そのまま意識を失った……！" },
+    { id: 7, name: "くしゃみによるギックリ腰ショック", cat: "病気による死亡", tag: "ネタ系", jobs: [], sits: ["自宅でくつろいでいる", "勤務中"], weight: 6, res: "death", story: "{{name}}は{{sit}}、特大のくしゃみをした衝撃で全身の骨が脱臼した……！" },
+    { id: 8, name: "強烈なヒートショック", cat: "病気による死亡", tag: "現実系", jobs: [], sits: ["入浴中"], weight: 14, res: "death", story: "{{name}}は{{sit}}、急激な温度差により意識を失い湯船に沈んだ……！" },
+    { id: 9, name: "深夜勤務の限界過労", cat: "病気による死亡", tag: "職業系", jobs: ["IT・技術職", "会社員・公務員", "医療・福祉職"], sits: ["勤務中"], weight: 11, res: "death", story: "{{name}}は{{sit}}、72時間不眠不休の末に魂がモニターの中に吸い込まれた……！" },
+    { id: 10, name: "劇毒フグの誤食", cat: "中毒・有害物質", tag: "現実系", jobs: [], sits: ["食事中", "旅行中"], weight: 7, res: "death", story: "{{name}}は{{sit}}、調理資格のない店主が出した謎の刺身を食べて痺れて倒れた……！" },
+
+    // 3. 転倒・転落
+    { id: 11, name: "駅階段からの豪快な転落", cat: "転倒・転落・墜落", tags: "現実系", jobs: [], sits: ["通勤・通学中", "徒歩で移動中"], weight: 10, res: "death", story: "{{name}}は{{sit}}、スマホを見ながら階段を踏み外し下まで転がり落ちた……！" },
+    { id: 12, name: "バナナの皮による美しいスピン", cat: "転倒・転落・墜落", tag: "ネタ系", jobs: [], sits: ["徒歩で移動中", "屋外で遊んでいる"], weight: 7, res: "death", story: "{{name}}は{{sit}}、誰かが落としたバナナの皮で見事な3回転宙返りをキメて頭を打った……！" },
+    { id: 13, name: "足場からの墜落", cat: "労働災害・作業事故", tag: "職業系", jobs: ["建設・工場・現場職"], sits: ["高所作業中", "勤務中"], weight: 15, res: "death", story: "{{name}}は{{sit}}、突風により安全帯が外れ、地上20メートルから落下した……！" },
+    { id: 14, name: "ベッドからのはみ出し落下", cat: "その他の日常事故", tag: "ネタ系", jobs: [], sits: ["睡眠中"], weight: 6, res: "death", story: "{{name}}は{{sit}}、寝相が悪すぎてフローリングの角に頭部を直撃した……！" },
+
+    // 4. 火災・爆発・労働災害
+    { id: 15, name: "電子レンジの謎爆発", cat: "火災・爆発", tag: "ネタ系", jobs: [], sits: ["自宅でくつろいでいる", "食事中"], weight: 8, res: "death", story: "{{name}}は{{sit}}、生卵を温めてしまい、キッチンごと吹き飛ばされた……！" },
+    { id: 16, name: "工場ベルトコンベアへの巻き込まれ", cat: "労働災害・作業事故", tag: "職業系", jobs: ["建設・工場・現場職"], sits: ["勤務中"], weight: 12, res: "death", story: "{{name}}は{{sit}}、服の袖が機械に挟まれ、そのまま缶詰に加工された……！" },
+    { id: 17, name: "黒板消しトラップの粉塵爆発", cat: "火災・爆発", tag: "ネタ系", jobs: ["学生", "教育職"], sits: ["勤務中", "通勤・通学中"], weight: 6, res: "death", story: "{{name}}の頭上に仕掛けられた黒板消しが火花と反応し、教室が吹き飛んだ……！" },
+
+    // 5. 事件・犯罪
+    { id: 18, name: "銀行強盗との鉢合わせ", cat: "犯罪・事件", tag: "現実系", jobs: [], sits: ["買い物中", "通勤・通学中"], weight: 8, res: "death", story: "{{name}}は{{sit}}、運悪く押し入ってきたガスマスクの強盗団に捕まり人質にされた……！" },
+    { id: 19, name: "スパイの機密文書を拾ってしまう", cat: "犯罪・事件", tag: "ネタ系", jobs: [], sits: ["徒歩で移動中", "電車・バスで移動中"], weight: 6, res: "death", story: "{{name}}は{{sit}}、怪しいUSBメモリを拾った瞬間、謎の狙撃手に暗殺された……！" },
+
+    // 6. ネタ系・超常現象
+    { id: 20, name: "空から巨大なプリンが落下", cat: "超常現象・架空イベント", tag: "ネタ系", jobs: [], sits: ["屋外で遊んでいる", "徒歩で移動中"], weight: 7, res: "death", story: "{{name}}は{{sit}}、上空から落ちてきた直径10メートルの巨大プリンの下敷きになり甘美に窒息した……！" },
+    { id: 21, name: "UFOのアブダクション", cat: "超常現象・架空イベント", tag: "ネタ系", jobs: [], sits: ["睡眠中", "屋外で遊んでいる", "旅行中"], weight: 7, res: "death", story: "{{name}}は{{sit}}、頭上に出現した未確認飛行物体の怪光線に吸い上げられ、火星へ連れ去られた……！" },
+    { id: 22, name: "コピペプログラミングの呪い", cat: "超常現象・架空イベント", tag: "ネタ系", jobs: ["IT・技術職"], sits: ["勤務中"], weight: 10, res: "death", story: "{{name}}が{{sit}}、StackOverflowから拾った謎コードを実行した瞬間、PCから悪霊が具現化した……！" },
+    { id: 23, name: "超ピンポイント隕石直撃", cat: "自然災害", tag: "ネタ系", jobs: [], sits: [], weight: 5, res: "death", story: "{{name}}の頭頂部に、宇宙の彼方から飛来した直径3cmの純金製隕石が音速で突き刺さった……！" },
+    { id: 24, name: "鳩の軍団による国家転覆テロ", cat: "超常現象・架空イベント", tag: "ネタ系", jobs: [], sits: ["屋外で遊んでいる", "徒歩で移動中"], weight: 5, res: "death", story: "{{name}}は{{sit}}、パン屑を持っていたばかりに1万羽の鳩に持ち去られ成層圏へ消えた……！" },
+    { id: 25, name: "突如足元の地面が消失", cat: "超常現象・架空イベント", tag: "ネタ系", jobs: [], sits: [], weight: 5, res: "death", story: "{{name}}の真下のテクスチャがバグで抜け落ち、マントルまで落下した……！" },
+
+    // 7. 奇跡の生存（サバイバル）
+    { id: 26, name: "スマホが銃弾を防ぐ奇跡", cat: "奇跡の生存", tag: "生存系", jobs: [], sits: [], weight: 10, res: "survive", story: "{{name}}は{{sit}}、流れ弾に当たったが、胸ポケットのガラケーが奇跡的に弾丸を跳ね返して無傷だった！" },
+    { id: 27, name: "落下傘部隊がクッションになる", cat: "奇跡の生存", tag: "生存系", jobs: [], sits: ["高所作業中", "通勤・通学中"], weight: 8, res: "survive", story: "{{name}}は{{sit}}、高所から落下したが、たまたま下を通過したマットレス配送車に着地して生還した！" },
+    { id: 28, name: "謎の超能力に覚醒", cat: "奇跡の生存", tag: "生存系", jobs: [], sits: [], weight: 8, res: "survive", story: "{{name}}に死の危機が迫ったその刹那、秘められたサイコキネシスが発動して危機を粉砕した！" },
+    { id: 29, name: "幽体離脱して元の体に戻る", cat: "奇跡の生存", tag: "生存系", jobs: [], sits: ["睡眠中", "入浴中"], weight: 8, res: "survive", story: "{{name}}は心停止したが、幽体離脱中に自分の胸を自力で心臓マッサージして生き返った！" },
+    { id: 30, name: "死神がスケジュールを間違える", cat: "奇跡の生存", tag: "生存系", jobs: [], sits: [], weight: 9, res: "survive", story: "鎌を持った死神が現れたが、「すまん同姓同名と間違えた」と言って去っていった！" }
+];
+
+/* ========================================================
+   状態管理
+   ======================================================== */
+let bodyMode = 'simple';
+let historyLog = [];
+
+/* ========================================================
+   画面遷移 & 操作ロジック
+   ======================================================== */
+function goToScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById(screenId);
+    if (target) {
+        target.classList.add('active');
+    }
+
+    if (screenId === 'screen-sit') {
+        updatePreview();
+    }
+}
+
+function setBodyMode(mode) {
+    bodyMode = mode;
+    document.getElementById('tab-simple').classList.toggle('active', mode === 'simple');
+    document.getElementById('tab-detail').classList.toggle('active', mode === 'detail');
+    document.getElementById('body-simple-area').style.display = (mode === 'simple') ? 'block' : 'none';
+    document.getElementById('body-detail-area').style.display = (mode === 'detail') ? 'block' : 'none';
+}
+
+function calcBMI() {
+    const h = Number(document.getElementById('char-height').value) || 170;
+    const w = Number(document.getElementById('char-weight').value) || 65;
+    const bmi = (w / ((h / 100) * (h / 100))).toFixed(1);
+    let state = "普通体重";
+    if (bmi < 18.5) state = "低体重";
+    else if (bmi >= 25) state = "肥満気味";
+    document.getElementById('bmi-display').textContent = `BMI: ${bmi} (${state})`;
+}
+
+function genRandomName() {
+    const rName = NAMES[Math.floor(Math.random() * NAMES.length)];
+    document.getElementById('char-name').value = rName;
+}
+
+function genRandomAge() {
+    document.getElementById('char-age').value = Math.floor(Math.random() * 85) + 5;
+}
+
+function updatePreview() {
+    const name = document.getElementById('char-name').value || '名無し';
+    const job = document.getElementById('char-job').value;
+    const sit = document.getElementById('char-sit').value;
+    document.getElementById('preview-summary').textContent = `【${name}】 職業: ${job} / 状況: ${sit}`;
+    drawPixelChar('charCanvas');
+}
+
+/* ========================================================
+   レトロなドット絵キャラクター描画 (Canvas)
+   ======================================================== */
+function drawPixelChar(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const px = 6;
+    // 16x16 ドットパターン
+    const map = [
+        "....ffffffff....",
+        "...fyyyyyyyyf...",
+        "..fyyyffffyyyf..",
+        "..fyyf0000fyyf..",
+        "..fyyf0..0fyyf..",
+        "..fyyyyyyyyyyf..",
+        "...fyyffffyyf...",
+        "...fyyyyyyyyf...",
+        "..fbbbbbbbbbbf..",
+        ".fbbbbbbbbbbbbf.",
+        ".fbbffbbbbffbbf.",
+        ".fbbbbbbbbbbbbf.",
+        "..fbbbbbbbbbbf..",
+        "...fppffffppf...",
+        "...fppf..fppf...",
+        "...ffff..ffff..."
+    ];
+
+    const colors = {
+        'f': '#100b1a', // 枠線
+        'y': '#ffd166', // 肌色
+        '0': '#222222', // 目
+        '.': 'transparent',
+        'b': '#4361ee', // 服
+        'p': '#3a0ca3'  // ズボン
+    };
+
+    for (let r = 0; r < 16; r++) {
+        for (let c = 0; c < 16; c++) {
+            const ch = map[r][c];
+            if (colors[ch] && colors[ch] !== 'transparent') {
+                ctx.fillStyle = colors[ch];
+                ctx.fillRect(c * px, r * px, px, px);
+            }
+        }
+    }
+}
+
+/* ========================================================
+   運命判定 & カウントダウン演出
+   ======================================================== */
+function startFateCountdown() {
+    goToScreen('screen-fate');
+    const numEl = document.getElementById('countdown-num');
+    const thinkEl = document.getElementById('fate-thinking');
+    numEl.textContent = "1";
+    thinkEl.textContent = "1秒後の運命をシミュレート中……";
+
+    setTimeout(() => {
+        numEl.textContent = "0";
+        thinkEl.textContent = "判定完了！！！";
+        setTimeout(() => {
+            executeFateLogic();
+        }, 400);
+    }, 1000);
+}
+
+function executeFateLogic() {
+    const name = document.getElementById('char-name').value || '名無し';
+    let gender = document.getElementById('char-gender').value;
+    if (gender === 'ランダム') gender = Math.random() > 0.5 ? '男性' : '女性';
+    const age = Number(document.getElementById('char-age').value) || 20;
+    const personality = document.getElementById('char-personality').value;
+    let job = document.getElementById('char-job').value;
+    if (job === 'ランダム') {
+        const jobs = ["会社員・公務員", "医療・福祉職", "IT・技術職", "運転・配送職", "学生"];
+        job = jobs[Math.floor(Math.random() * jobs.length)];
+    }
+    const health = document.getElementById('char-health').value;
+    let sit = document.getElementById('char-sit').value;
+    if (sit === 'ランダム') {
+        const sits = ["自宅でくつろいでいる", "通勤・通学中", "勤務中", "食事中", "入浴中", "徒歩で移動中"];
+        sit = sits[Math.floor(Math.random() * sits.length)];
+    }
+
+    // 候補イベント抽出
+    const candidates = EVENTS.filter(ev => {
+        if (ev.jobs && ev.jobs.length > 0 && !ev.jobs.includes(job)) return false;
+        if (ev.sits && ev.sits.length > 0 && !ev.sits.includes(sit)) return false;
+        return true;
+    });
+
+    const pool = candidates.length > 0 ? candidates : EVENTS;
+
+    // 重み計算
+    const weightedPool = pool.map(ev => {
+        let w = ev.weight || 10;
+        if (personality === 'せっかち' || personality === '大胆') w *= 1.3;
+        if (health === '疲労気味' || health === '不健康') w *= 1.4;
+        if (age > 60 && ev.cat === '病気による死亡') w *= 1.5;
+        return { ev, weight: w };
+    });
+
+    const totalWeight = weightedPool.reduce((sum, item) => sum + item.weight, 0);
+    let rnd = Math.random() * totalWeight;
+    let selected = weightedPool[0].ev;
+    for (const item of weightedPool) {
+        if (rnd < item.weight) {
+            selected = item.ev;
+            break;
+        }
+        rnd -= item.weight;
+    }
+
+    // ストーリーテキスト置換
+    let story = selected.story
+        .replace(/{{name}}/g, name)
+        .replace(/{{sit}}/g, sit);
+
+    // 画面反映
+    const banner = document.getElementById('result-banner');
+    if (selected.res === 'death') {
+        banner.className = 'result-banner death';
+        banner.textContent = `💀 1秒後に死亡……！`;
+    } else {
+        banner.className = 'result-banner survive';
+        banner.textContent = `✨ 奇跡の生存！！！`;
+    }
+
+    document.getElementById('res-target').textContent = `${name} (${age}歳・${job})`;
+    document.getElementById('res-event-name').textContent = `【${selected.name}】`;
+    document.getElementById('res-story').textContent = story;
+    document.getElementById('res-reason').textContent = `※ ${job} × ${sit} の状況から運命が導き出されました。`;
+    document.getElementById('res-tags').innerHTML = `
+        <span class="result-tag">${selected.cat}</span>
+        <span class="result-tag">${selected.tag}</span>
+        <span class="result-tag">${selected.res === 'death' ? '結末: 死亡' : '結末: 生存'}</span>
+    `;
+
+    // 履歴保存
+    historyLog.unshift({
+        name,
+        event: selected.name,
+        res: selected.res === 'death' ? '死亡' : '生存',
+        time: new Date().toLocaleTimeString()
+    });
+    renderHistory();
+
+    goToScreen('screen-result');
+}
+
+function renderHistory() {
+    const box = document.getElementById('history-box');
+    if (!box) return;
+    box.innerHTML = historyLog.slice(0, 10).map(h => `
+        <div class="history-item">
+            <span>${h.time} 【${h.name}】 ${h.event}</span>
+            <span style="color: ${h.res === '死亡' ? '#ff3366' : '#33ff99'}; font-weight: bold;">[${h.res}]</span>
+        </div>
+    `).join('');
+}
+
+function retryGame() {
+    goToScreen('screen-title');
+}
+
+// 初期化
+window.addEventListener('DOMContentLoaded', () => {
+    drawPixelChar('titleCanvas');
+});
+</script>
 </body>
 </html>
