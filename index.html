@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1秒後に死ぬ君</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="app">
+        <!-- Title Screen -->
+        <section id="title-screen" class="screen active">
+            <h1>1秒後に死ぬ君</h1>
+            <button id="start-btn" class="btn">はじめる</button>
+        </section>
+
+        <!-- Character Settings -->
+        <section id="character-screen" class="screen">
+            <h2>キャラクター設定</h2>
+            <form id="character-form">
+                <label>名前: <input type="text" id="name" placeholder="名前を入力" /></label>
+                <button type="button" id="random-name" class="small-btn">ランダム生成</button>
+                <br/>
+                <label>性別:
+                    <select id="gender">
+                        <option value="random">ランダム</option>
+                        <option value="男性">男性</option>
+                        <option value="女性">女性</option>
+                    </select>
+                </label>
+                <br/>
+                <label>年齢:
+                    <input type="number" id="age" min="0" max="100" placeholder="0〜100" />
+                </label>
+                <button type="button" id="random-age" class="small-btn">ランダム生成</button>
+                <br/>
+                <label>体格モード:
+                    <select id="body-mode">
+                        <option value="simple">簡易設定</option>
+                        <option value="detail">詳細設定</option>
+                    </select>
+                </label>
+                <div id="body-simple" class="body-section">
+                    <label>体格:
+                        <select id="body-type">
+                            <option value="random">ランダム</option>
+                            <option value="痩せ型">痩せ型</option>
+                            <option value="標準">標準</option>
+                            <option value="がっちり">がっちり</option>
+                            <option value="太め">太め</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="body-detail" class="body-section hidden">
+                    <label>身長(cm): <input type="number" id="height" min="100" max="250" /></label>
+                    <label>体重(kg): <input type="number" id="weight" min="30" max="200" /></label>
+                    <p id="bmi-display"></p>
+                </div>
+                <br/>
+                <label>性格:
+                    <select id="personality">
+                        <option value="random">ランダム</option>
+                        <option value="慎重">慎重</option>
+                        <option value="大胆">大胆</option>
+                        <option value="のんびり">のんびり</option>
+                        <option value="せっかち">せっかち</option>
+                        <option value="臆病">臆病</option>
+                        <option value="好奇心旺盛">好奇心旺盛</option>
+                    </select>
+                </label>
+                <br/>
+                <label>職業:
+                    <select id="occupation">
+                        <option value="random">ランダム</option>
+                        <!-- options will be filled by script -->
+                    </select>
+                </label>
+                <br/>
+                <label>健康状態:
+                    <select id="health">
+                        <option value="random">ランダム</option>
+                        <option value="健康">健康</option>
+                        <option value="疲労気味">疲労気味</option>
+                        <option value="持病あり">持病あり</option>
+                        <option value="不健康">不健康</option>
+                    </select>
+                </label>
+                <br/>
+                <button type="button" id="to-situation" class="btn">次へ</button>
+            </form>
+        </section>
+
+        <!-- Situation Settings -->
+        <section id="situation-screen" class="screen">
+            <h2>シチュエーション設定</h2>
+            <select id="situation">
+                <!-- options filled by script -->
+            </select>
+            <br/>
+            <button id="to-fate" class="btn">運命判定へ</button>
+        </section>
+
+        <!-- Fate Animation -->
+        <section id="fate-screen" class="screen">
+            <h2>1秒後のあなたは……</h2>
+            <div id="animation">
+                <canvas id="char-canvas" width="200" height="200"></canvas>
+            </div>
+            <button id="reveal-btn" class="btn">結果を見る</button>
+        </section>
+
+        <!-- Result Screen -->
+        <section id="result-screen" class="screen">
+            <h2>結果</h2>
+            <div id="result-content"></div>
+            <button id="again-btn" class="btn">もう一度遊ぶ</button>
+            <h3>履歴</h3>
+            <ul id="history-list"></ul>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

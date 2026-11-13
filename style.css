@@ -1,0 +1,41 @@
+/* Retro pixel style */
+body {
+  margin: 0;
+  padding: 0;
+  background: #111;
+  color: #eee;
+  font-family: "Press Start 2P", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.screen {
+  display: none;
+}
+.screen.active {
+  display: block;
+}
+.btn, .small-btn {
+  background: #444;
+  color: #fff;
+  border: 2px solid #666;
+  padding: 8px 12px;
+  margin: 8px 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn:hover, .small-btn:hover {
+  background: #555;
+}
+.hidden { display: none; }
+label { display: block; margin: 6px 0; }
+input, select { width: 80%; padding: 4px; margin-top: 2px; }
+#history-list { list-style: none; padding: 0; }
+#history-list li { background: #222; margin: 4px 0; padding: 4px; }
+canvas { background: #222; image-rendering: pixelated; }
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
